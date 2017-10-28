@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hideIconTitle">隐藏图标</string>
-    <string name="hideIconSummary">不在启动器中显示应用图标</string>
-
+    <string name="volumeTitle">音量键</string>
     <string name="enableServiceTitle">启用服务</string>
     <string name="enableServiceSummary">服务将在屏幕关闭且音乐播放时进行音量长按控制</string>
-
 
     <string name="enableScreenOn">开屏时控制</string>
     <string name="enableScreenOnSummary">无论开屏和关屏都进行控制</string>
 
     <string name="enableMediaNotPlaying">媒体未播放时控制</string>
     <string name="enableMediaNotPlayingSummary">无论媒体是否在播放都进行控制</string>
+    <string name="powerTitle">电源键键</string>
+    <string name="enableAdvanceReboot">高级重启</string>
+    <string name="enableAdvanceRebootSummary">在电源选项中增加Recovery和Bootloader</string>
 
     <string name="enableDebug">显示调试信息</string>
 

@@ -2,13 +2,12 @@ package com.mumu.systemaddons;
 
 import android.Manifest;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +23,9 @@ import com.mumu.systemaddons.fragments.SystemUIFragment;
 import com.mumu.systemaddons.fragments.ThemeFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -33,7 +34,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar mToolbar;
     private FrameLayout mFragmentContainer;
     private DrawerLayout mDrawer;
-    private List<Fragment> mFragmentList = new ArrayList<>();
+    private Class[] mMenuArray = {
+            KeysFragment.class,
+            SystemUIFragment.class,
+            ThemeFragment.class,
+            null,
+            null
+    };
+    private Map<Class<? extends Fragment>, Fragment> mFragmentMap = new HashMap<>();
     private Fragment mCurrentFragment;
 
     @Override
@@ -58,11 +66,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavi.setNavigationItemSelectedListener(this);
 
         mFragmentContainer = (FrameLayout) findViewById(R.id.fragment_container);
-
+        restoreFromSavedBundle(savedInstanceState);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CODE_ASK_WRITE_SETTINGS:
                 Log.d("mumu", "onRequestPermissionsResult -> " + permissions[0] + ", " + grantResults[0]);
@@ -73,42 +81,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mFragmentList != null && mFragmentList.size() > 0) {
-            mFragmentList.clear();
-            mFragmentList = null;
-        }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        mDrawer.closeDrawers();
+    public boolean onNavigationItemSelected( MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_keys:
-                switchFragment(KeysFragment.class);
+                switchFragment(mMenuArray[0]);
                 break;
             case R.id.nav_systemui:
-                switchFragment(SystemUIFragment.class);
+                switchFragment(mMenuArray[1]);
                 break;
             case R.id.nav_theme:
-                switchFragment(ThemeFragment.class);
+                switchFragment(mMenuArray[2]);
                 break;
             case R.id.nav_message:
-                switchFragment(null);
+                switchFragment(mMenuArray[3]);
                 break;
             case R.id.nav_about:
-                switchFragment(null);
+                switchFragment(mMenuArray[4]);
                 break;
         }
+        mDrawer.closeDrawers();
         return true;
     }
 
-    private void switchFragment(@Nullable Class<? extends Fragment> fragment) {
-        if (fragment == null) {
-            if (mCurrentFragment != null) {
-                getFragmentManager().beginTransaction().remove(mCurrentFragment).commit();
-            }
+    private void switchFragment( Class<? extends Fragment> fragment) {
+        if (fragment == null && mCurrentFragment == null) {
+            return;
+        } else if (fragment == null && mCurrentFragment != null) {
+            getFragmentManager().beginTransaction().hide(mCurrentFragment).commit();
             mCurrentFragment = null;
             return;
         }
@@ -116,32 +115,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (f == null) {
             try {
                 f = fragment.newInstance();
-                mFragmentList.add(f);
+                mFragmentMap.put(fragment, f);
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(this, "from new", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "from cache", Toast.LENGTH_SHORT).show();
+        }
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (mCurrentFragment != null) {
+            ft.hide(mCurrentFragment);
+        }
+        if (f.isAdded()) {
+            ft.show(f);
+        } else {
+            ft.add(R.id.fragment_container, f, fragment.getName());
         }
         mCurrentFragment = f;
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, f).commit();
+        ft.commit();
     }
 
-    private Fragment haveFragmentInstance(@Nullable Class<? extends Fragment> fragment) {
-        if (fragment == null || mFragmentList == null || mFragmentList.size() == 0) {
+    private Fragment haveFragmentInstance( Class<? extends Fragment> fragment) {
+        if (fragment == null || mFragmentMap.size() == 0) {
             return null;
         }
-        synchronized (mFragmentList) {
-            for (int i = 0, size = mFragmentList.size(); i < size; i++) {
-                Fragment f = mFragmentList.get(i);
-                if (f.getClass() == fragment) {
-                    return f;
+        return mFragmentMap.keySet().contains(fragment) ? mFragmentMap.get(fragment) : null;
+    }
+
+    private void restoreFromSavedBundle(Bundle savedBundle) {
+        if (savedBundle != null) {
+            for (int i = mMenuArray.length; i > 0; --i) {
+                Class clz = mMenuArray[i];
+                if (clz != null) {
+                    Fragment f = getFragmentManager().findFragmentByTag(clz.getName());
+                    if (f != null) {
+                        mFragmentMap.put(clz, f);
+                    }
                 }
             }
         }
-        return null;
     }
 }
