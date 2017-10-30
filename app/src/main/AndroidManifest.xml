@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mumu.systemaddons"
-    android:sharedUserId="android.uid.system"
-    >
+    package="com.mumu.systemaddons">
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <application
@@ -13,9 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:launchMode="singleInstance"
             android:name=".MainActivity"
-            android:excludeFromRecents="true">
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

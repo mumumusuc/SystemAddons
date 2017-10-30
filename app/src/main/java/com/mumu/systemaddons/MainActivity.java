@@ -1,10 +1,8 @@
 package com.mumu.systemaddons;
 
-import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -15,21 +13,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.mumu.systemaddons.fragments.KeysFragment;
 import com.mumu.systemaddons.fragments.SystemUIFragment;
 import com.mumu.systemaddons.fragments.ThemeFragment;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
-    private static final int REQUEST_CODE_ASK_WRITE_SETTINGS = 0;
 
     private Toolbar mToolbar;
     private FrameLayout mFragmentContainer;
@@ -52,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:" + getPackageName()));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivityForResult(intent, REQUEST_CODE_ASK_WRITE_SETTINGS);
         }
 
         setContentView(R.layout.activity_main);
@@ -67,17 +56,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mFragmentContainer = (FrameLayout) findViewById(R.id.fragment_container);
         restoreFromSavedBundle(savedInstanceState);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_ASK_WRITE_SETTINGS:
-                Log.d("mumu", "onRequestPermissionsResult -> " + permissions[0] + ", " + grantResults[0]);
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
