@@ -9,7 +9,6 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-v7-appcompat \
     android-support-design \
     android-support-v7-recyclerview
-    #android-support-transition \
 
 LOCAL_PROGUARD_FLAG_FILES := \
     ../../../../../../../frameworks/support/design/proguard-rules.pro \
