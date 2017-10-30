@@ -8,8 +8,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -72,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CODE_ASK_WRITE_SETTINGS:
                 Log.d("mumu", "onRequestPermissionsResult -> " + permissions[0] + ", " + grantResults[0]);
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    public boolean onNavigationItemSelected( MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_keys:
                 switchFragment(mMenuArray[0]);
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void switchFragment(@Nullable Class<? extends Fragment> fragment) {
+    private void switchFragment( Class<? extends Fragment> fragment) {
         if (fragment == null && mCurrentFragment == null) {
             return;
         } else if (fragment == null && mCurrentFragment != null) {
@@ -123,9 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(this, "from new", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "from cache", Toast.LENGTH_SHORT).show();
         }
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         if (mCurrentFragment != null) {
@@ -140,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.commit();
     }
 
-    private Fragment haveFragmentInstance(@Nullable Class<? extends Fragment> fragment) {
+    private Fragment haveFragmentInstance( Class<? extends Fragment> fragment) {
         if (fragment == null || mFragmentMap.size() == 0) {
             return null;
         }

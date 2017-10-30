@@ -59,18 +59,18 @@ public class KeysFragment extends PreferenceFragment implements PreferenceManage
             mEnableService = ((SwitchPreference) preference).isChecked();
             findPreference(PREF_KEY_ENABLE_SCREEN_ON).setEnabled(mEnableService);
             findPreference(PREF_KEY_ENABLE_MEDIA_NOT_PLAYING).setEnabled(mEnableService);
-            if (mEnableService) {
-                android.provider.Settings.System.putInt(getContext().getContentResolver(), "volume_long_press_enable", mEnableService ? 1 : 0);
-            }
+            updateVolumeKeyState();
         } else if (PREF_KEY_ENABLE_SCREEN_ON.equals(preference.getKey())) {
             mEnableScreenOn = ((CheckBoxPreference) preference).isChecked();
+            updateVolumeKeyState();
         } else if (PREF_KEY_ENABLE_MEDIA_NOT_PLAYING.equals(preference.getKey())) {
             mEnableMediaNotPlaying = ((CheckBoxPreference) preference).isChecked();
+            updateVolumeKeyState();
         } else if (PREF_KEY_ENABLE_ADVANCE_REBOOT.equals(preference.getKey())) {
             boolean checked = ((SwitchPreference) preference).isChecked();
             Settings.System.putInt(
                     getContext().getContentResolver(),
-                    "system_addons_keys_advance_reboot",
+                    "system_addons_keys_power",
                     checked ? (ADVANCE_REBOOT_ENABLE | ADVANCE_REBOOT_BOOTLOADER | ADVANCE_REBOOT_RECOVERY) : 0);
         } else if (PREF_KEY_ENABLE_DEBUG.equals(preference.getKey())) {
             mEnableDebug = ((SwitchPreference) preference).isChecked();
@@ -79,13 +79,31 @@ public class KeysFragment extends PreferenceFragment implements PreferenceManage
     }
 
     private void init() {
-        mEnableService = ((SwitchPreference) findPreference(PREF_KEY_ENABLE_SERVICE)).isChecked();
+        int config = android.provider.Settings.System.getInt(getContext().getContentResolver(), "system_addons_keys_volume", 0);
+        mEnableService = (config & 0x80) != 0;
+        mEnableScreenOn = (config & 0x01) != 0;
+        mEnableMediaNotPlaying = (config & 0x02) != 0;
+
+        ((SwitchPreference) findPreference(PREF_KEY_ENABLE_SERVICE)).setChecked(mEnableService);
         CheckBoxPreference screen = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_SCREEN_ON);
-        mEnableScreenOn = screen.isChecked();
+        screen.setChecked(mEnableScreenOn);
         screen.setEnabled(mEnableService);
         CheckBoxPreference media = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_MEDIA_NOT_PLAYING);
-        mEnableMediaNotPlaying = media.isChecked();
+        media.setChecked(mEnableMediaNotPlaying);
         media.setEnabled(mEnableService);
+    }
+
+    private void updateVolumeKeyState() {
+        int config = android.provider.Settings.System.getInt(getContext().getContentResolver(), "system_addons_keys_volume", 0);
+        synchronized (KeysFragment.class) {
+            config = (config & 0x7f) | (mEnableService ? 0x80 : 0);
+            config = (config & 0xfe) | (mEnableScreenOn ? 0x01 : 0);
+            config = (config & 0xfd) | (mEnableMediaNotPlaying ? 0x02 : 0);
+            android.provider.Settings.System.putInt(
+                    getContext().getContentResolver(),
+                    "system_addons_keys_volume",
+                    config);
+        }
     }
 
 }
