@@ -79,12 +79,17 @@ public class KeysFragment extends PreferenceFragment implements PreferenceManage
     }
 
     private void init() {
-        mEnableService = ((SwitchPreference) findPreference(PREF_KEY_ENABLE_SERVICE)).isChecked();
+        int config = android.provider.Settings.System.getInt(getContext().getContentResolver(), "system_addons_keys_volume", 0);
+        mEnableService = (config & 0x80) != 0;
+        mEnableScreenOn = (config & 0x01) != 0;
+        mEnableMediaNotPlaying = (config & 0x02) != 0;
+
+        ((SwitchPreference) findPreference(PREF_KEY_ENABLE_SERVICE)).setChecked(mEnableService);
         CheckBoxPreference screen = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_SCREEN_ON);
-        mEnableScreenOn = screen.isChecked();
+        screen.setChecked(mEnableScreenOn);
         screen.setEnabled(mEnableService);
         CheckBoxPreference media = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_MEDIA_NOT_PLAYING);
-        mEnableMediaNotPlaying = media.isChecked();
+        media.setChecked(mEnableMediaNotPlaying);
         media.setEnabled(mEnableService);
     }
 
